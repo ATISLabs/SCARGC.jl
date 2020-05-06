@@ -1,6 +1,6 @@
 # SCARGC.jl
 
-A Julia implementation of **S**tream **C**lassification **A**lgorithm **G**uided by **C**lustering – SCARGC -, an algorithm to classify data streams in nonstationary environments with extreme verification latency. The considered scenario is the one where the actual labels of unlabeled data are never available as a guidance to update the classification model over time.
+A Julia implementation of **S**tream **C**lassification **A**lgorithm **G**uided by **C**lustering – **SCARGC** -, an algorithm to classify data streams in nonstationary environments with extreme verification latency. The considered scenario is the one where the actual labels of unlabeled data are never available as a guidance to update the classification model over time.
 
 Documentation | Build
 ------------- | -----
@@ -12,7 +12,7 @@ Documentation | Build
 The package can be installed using the Julia package REPL, by typing `]` in Julia terminal.
 Once the package manager is opened, type:
 
-```
+```julia
 pkg> add SCARGC
 ```
 
