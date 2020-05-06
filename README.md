@@ -18,7 +18,7 @@ pkg> add SCARGC
 
 Or, if you prefer, using the `Pkg` API:
 
-```julia-repl
+```julia
 julia> using Pkg
 
 julia> Pkg.add("SCARGC")
