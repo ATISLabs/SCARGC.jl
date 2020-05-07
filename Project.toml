@@ -1,0 +1,4 @@
+name = "SCARGC"
+uuid = "a9a67cac-a051-4819-a351-2ff2910a9f52"
+authors = ["Gabriel Marinho <gabrielvesal@gmail.com>"]
+version = "0.1.0"
