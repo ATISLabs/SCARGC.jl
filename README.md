@@ -4,7 +4,7 @@ A Julia implementation of **S**tream **C**lassification **A**lgorithm **G**uided
 
 Documentation | Build
 ------------- | -----
-[![][docs-stable-img]][docs-stable-url] | [![Build Status](https://travis-ci.org/MarinhoGabriel/SCARGC.jl.svg?branch=master)](https://travis-ci.org/MarinhoGabriel/SCARGC.jl) [![Coverage Status](https://coveralls.io/repos/github/MarinhoGabriel/SCARGC.jl/badge.svg?branch=master)](https://coveralls.io/github/MarinhoGabriel/SCARGC.jl?branch=master)
+[![][docs-stable-img]][docs-stable-url] | [![Build Status](https://travis-ci.org/MarinhoGabriel/SCARGC.jl.svg?branch=master)](https://travis-ci.org/MarinhoGabriel/SCARGC.jl) [![Coverage Status](https://coveralls.io/repos/github/MarinhoGabriel/SCARGC.jl/badge.svg)](https://coveralls.io/github/MarinhoGabriel/SCARGC.jl)
 
 
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
