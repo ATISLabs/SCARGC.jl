@@ -162,4 +162,43 @@ function findCentroids(labels::Array{T} where {T<:Number}, features::Int64, labe
     return centroids
 end
 
+"""
+    findLabelForCurrentCentroids(
+        pastCentroids    -> centroids from previous iteration
+        currentCentroids -> centroids from current iteration
+        K                -> number of clusters
+    )
+
+The function uses the last iteration centroids' labels to define the current iteration centroids' labels.
+Given the current centroids from the most recent unlabeled clusters and the past centroids from the previously labeled clusters, each centroid from the past iteration have a label yi and each 
+centroid from current iteration needs a label ˆyi. This label is obtained by aplying nearest neighbor algorithm. In other words, the label given to a centroid in the current iteration is the same 
+as the label given to it's nearest neighbor in the past iteration.
+
+The function returns two arrays:
+    intermed       -> matrix storing the median between the nearest neighbor's data and the current centroids and it's labels
+    centroidLabels -> labels got for the current centroids
+"""
+function findLabelForCurrentCentroids(pastCentroids::Array{T, 2} where {T<:Number}, currentCentroids::Array{T, 2} where {T<:Number}, K::Int64)
+    pastCentroidsSize = size(pastCentroids)
+    currentCentroidsSize = size(currentCentroids)
+
+    intermed = zeros(currentCentroidsSize[1], K + 1)
+    centroidLabels = zeros(currentCentroidsSize[1])
+
+    for row = 1:currentCentroidsSize[1]
+        label, nearestData = knnClassification(pastCentroids[:, 1:pastCentroidsSize[2] - 1], pastCentroids[:, pastCentroidsSize[2]], currentCentroids[row, :])
+        
+        medianMatrix = zeros(2, currentCentroidsSize[2])
+        medianMatrix[1, :] = nearestData
+        medianMatrix[2, :] = currentCentroids[row, :]
+
+        global intermed[row, 1:K] = median(medianMatrix, dims=1)
+        global intermed[row, K + 1] = label
+
+        global centroidLabels[row] = label
+    end
+
+    return intermed, centroidLabels
+end
+
 end
