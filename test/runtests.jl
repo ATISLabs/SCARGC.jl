@@ -59,6 +59,36 @@ using SCARGC, Test
     end
 end
 
+@testset "Data resizing" begin
+    @testset "features >= K" begin
+        dataset = rand(10^3, 5)
+        labels, labeledData, labeledDataLabels, streamData, streamLabels, features = SCARGC.fitData(dataset, 5.0)
+        labeledData, streamData, features = SCARGC.resizeData(labeledData, streamData, 4, features)
+
+        @test size(labeledData, 2) == 4
+        @test size(streamData, 2) == 4
+        @test features == 4
+    end
+
+    @testset "features < K" begin
+        dataset = rand(10^3, 3)
+        labels, labeledData, labeledDataLabels, streamData, streamLabels, features = SCARGC.fitData(dataset, 5.0)
+        labeledData, streamData, features = SCARGC.resizeData(labeledData, streamData, 4, features)
+
+        @testset "Arrays size" begin
+            @test size(labeledData, 2) == 4
+            @test size(streamData, 2) == 4
+            @test features == 4
+        end
+
+        @testset "Updated values" begin
+            @test labeledData[:, 3:4] == ones(size(labeledData, 1), 2)
+            @test streamData[:, 3:4] == ones(size(streamData, 1), 2)
+            @test features == 4
+        end
+    end
+end
+
 @testset "KNN Classification" begin
     dataset = [
         2.8958 -7.4953 2; 8.2872 -0.68142 4; 6.3705 -1.0572 4; -10.777 1.6717 3; -3.9285 9.8147 1;
