@@ -1,6 +1,7 @@
 module SCARGC
 
-using Distances
+using Distances, Statistics
+using Clustering
 
 """
     fitData(
@@ -97,6 +98,68 @@ function knnClassification(labeledData::Array{T, 2} where {T<:Number}, labels::A
     end
 
     return output, resultData
+end
+
+"""
+    findCentroids(
+        labels            -> whole dataset labels
+        features          -> number of features
+        labeledData       -> labeled data used in classification
+        labeledDataLabels -> labels of the labeled data used in classification
+        K                 -> number of clusters
+    )
+
+Finds the initial centroids used in program, using KMeans if necessary, with the data already fit. 
+The function has two possible ways:
+    - The value of K is the same as the number of classes; and
+    - The value of K is different as the number of classes.
+
+If the values are the same, the function creates the centroids as the median of the data. In other words, if these numbers are equal, the centroids have the value of the median of each feature.
+Otherwise, if the values aren't the same, the KMeans method is used to define the initial centroids.
+
+This function returns the centroids array.
+"""
+function findCentroids(labels::Array{T} where {T<:Number}, features::Int64, labeledData::Array{T, 2} where {T<:Number}, labeledDataLabels::Array{T} where {T<:Number}, K::Int64)
+    classes = unique(labels)
+    totalClasses = size(classes, 1)
+
+    centroids = nothing
+
+    # Finding the first centroids
+    # If the number of classes is the same as K, the initial centroid of each class is the mean of each feature.
+    # If it's not, a clustering is necessary to find the centroids.
+    if K == totalClasses
+        println("(K == C)")
+        global centroids = zeros(totalClasses, features + 1)
+
+        for class = 1:totalClasses
+            tempCentroids = zeros(features)
+
+            for feature = 1:features
+                tempCentroids[feature] = median(labeledData[findall(label -> label == classes[class], labeledDataLabels), feature])
+            end
+            
+            centroids[class, 1:features] = tempCentroids
+        end
+
+        global centroids[:, features + 1] = classes
+    else
+        println("(K != C)")
+        tempCentroids = kmeans(labeledData, K).centers
+
+        centroidLabels = zeros(size(tempCentroids, 1))
+
+        for row = 1:size(tempCentroids, 1)
+            output, _ = knnClassification(labeledData, labeledDataLabels, tempCentroids[row, :])
+            global centroidLabels[row] = output
+        end
+
+        global centroids = zeros(size(tempCentroids, 1), size(tempCentroids, 2) + 1)
+        global centroids[:, 1:size(tempCentroids, 2)] = tempCentroids
+        global centroids[:, size(centroids, 2)] = centroidLabels
+    end
+
+    return centroids
 end
 
 end
