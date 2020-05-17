@@ -10,7 +10,8 @@ using Clustering
     )
 
 Divides the dataset into labeled data and unlabeled data, training and testing data respectively.
-These arrays are gonna be used in the whole program, so the fitting part is considered extremelly important because, if something's wrong in the this step, the whole application is gonna fail.
+These arrays are gonna be used in the whole program, so the fitting part is considered extremelly important because, if 
+something's wrong in the this step, the whole application is gonna fail.
 
 The return of this function has the following variables:
     - labels            -> all dataset labels
@@ -40,14 +41,15 @@ function fitData(dataset::Array{T, 2} where {T<:Number}, percentTraining::Float6
 end
 
 """
-    resizeData(
+    updateData(
         labeledData -> the labeled data matrix that is going to be resized
         streamData  -> testing data matrix that is going to be resized
         K           -> defined number of clusters
         features    -> total of features, that also is going to be redefined
     )
 
-The function resizes the labeled and stream data with 1s if the feature count is smaller than the value of K. If it's not, the function just returns the original values.
+The function resizes the labeled and stream data with 1s if the feature count is smaller than the value of K. If it's not, the 
+function just returns the original values.
 After resizing, the function returns the new labeled data, the new stream data and the updated feature count.
 """
 function resizeData(labeledData::Array{T, 2} where {T<:Number}, streamData::Array{T, 2} where {T<:Number}, K::Int64, features::Int64)
@@ -75,8 +77,9 @@ end
 
 Applies the Nearest Neighbor to the `testInstance`.
 The function calculates, for each `labeledData`, the Euclidean Distance between it and the test instance and. 
-If it's value is smaller then the smallest distance, the smallest distance recieves this distance value and the label value, at this index, is stored.
-The return of the function is the output and the data from the nearest neighbor.
+If it's value is smaller then the smallest distance, the smallest distance recieves this distance value and the label value, at 
+this index, is stored.
+The rurn of the function is the output and the data from the nearest neighbor.
 """
 function knnClassification(labeledData::Array{T, 2} where {T<:Number}, labels::Array{T} where {T<:Number}, testInstance::Array{T} where {T<:Number})
     output = nothing
@@ -114,7 +117,8 @@ The function has two possible ways:
     - The value of K is the same as the number of classes; and
     - The value of K is different as the number of classes.
 
-If the values are the same, the function creates the centroids as the median of the data. In other words, if these numbers are equal, the centroids have the value of the median of each feature.
+If the values are the same, the function creates the centroids as the median of the data. In other words, if these numbers are 
+equal, the centroids have the value of the median of each feature.
 Otherwise, if the values aren't the same, the KMeans method is used to define the initial centroids.
 
 This function returns the centroids array.
@@ -170,9 +174,10 @@ end
     )
 
 The function uses the last iteration centroids' labels to define the current iteration centroids' labels.
-Given the current centroids from the most recent unlabeled clusters and the past centroids from the previously labeled clusters, each centroid from the past iteration have a label yi and each 
-centroid from current iteration needs a label ˆyi. This label is obtained by aplying nearest neighbor algorithm. In other words, the label given to a centroid in the current iteration is the same 
-as the label given to it's nearest neighbor in the past iteration.
+Given the current centroids from the most recent unlabeled clusters and the past centroids from the previously labeled clusters, 
+each centroid from the past iteration have a label yi and each centroid from current iteration needs a label ˆyi. This label is 
+obtained by aplying nearest neighbor algorithm. In other words, the label given to a centroid in the current iteration is the 
+same as the label given to it's nearest neighbor in the past iteration.
 
 The function returns two arrays:
     intermed       -> matrix storing the median between the nearest neighbor's data and the current centroids and it's labels
@@ -208,7 +213,8 @@ end
         intermedCentroids -> matrix with centroids and their labels 
     )
 
-Given the updated centroid values and the pool data, the function calculates the new labeled data using nearest neighbor over the vcat of current centroids and the intermed centroids and the pool data. 
+Given the updated centroid values and the pool data, the function calculates the new labeled data using nearest neighbor over the
+vcat of current centroids and the intermed centroids and the pool data. 
 The result is going to have the labels got with new centroid values, from the updated classifier.
 """
 function calculateNewLabeledData(poolData::Array{T, 2} where {T<:Number}, currentCentroids::Array{T, 2} where {T<:Number}, intermedCentroids::Array{T, 2} where {T<:Number})
@@ -227,6 +233,48 @@ function calculateNewLabeledData(poolData::Array{T, 2} where {T<:Number}, curren
     end
 
     return newLabeledData
+end
+
+"""
+    updateInformation(
+        poolData             -> test instances with it's labels 
+        centroids            -> centroids from past iteration
+        labeledData          -> labeled data used in classification
+        labeledDataLabels    -> labels from the data in `labeledData`
+        newLabeledData       -> data calculated with the new centroid values
+        currentCentroids     -> centroids from the current iteration
+        intermed             -> matrix with all median data between past and current iteration centroids
+        concordantLabelCount -> amout of labels in concordance between the labels stored in pool data and the calculated
+                                with new centroid values
+        maxPoolSize          -> the maximum size of the pool
+    )
+
+Updates the information stored in `centroids`, `labeledData` and `labeledDataLabels` if the concordance isn't 100% with the
+new labeled data calculated with the updated centroid values.
+"""
+function updateInformation(poolData::Array{T, 2} where {T<:Number}, centroids::Array{T, 2} where {T<:Number}, labeledData::Array{T, 2} 
+    where {T<:Number}, labeledDataLabels::Array{T} where {T<:Number}, newLabeledData::Array{T} where {T<:Number}, currentCentroids::Array{T, 2} where {T<:Number}, 
+    intermed::Array{T, 2} where {T<:Number}, concordantLabelCount::Int64, maxPoolSize::Int64)
+
+    # Variables to store the size of the matrixes.
+    sizePoolData = size(poolData)
+
+    # If there's still some difference (concordantLabelCount/maxPoolSize < 1) or if the amount of labeled data labels is smaller than the pool data 
+    # means that the classifier elements (as centroids, data and labels) need to be updated.
+    if concordantLabelCount/maxPoolSize < 1 || size(labeledDataLabels, 1) < sizePoolData[1]
+        poolData[:, sizePoolData[2]] = newLabeledData
+        
+        centroids = nothing
+        centroids = vcat(currentCentroids, intermed)
+
+        labeledData = nothing
+        labeledData = poolData[:, 1:sizePoolData[2] - 1]
+
+        labeledDataLabels = nothing
+        labeledDataLabels = poolData[:, sizePoolData[2]]
+    end
+
+    return centroids, labeledData, labeledDataLabels
 end
 
 end
