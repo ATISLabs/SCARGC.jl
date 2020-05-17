@@ -201,4 +201,32 @@ function findLabelForCurrentCentroids(pastCentroids::Array{T, 2} where {T<:Numbe
     return intermed, centroidLabels
 end
 
+"""
+    calculateNewLabeledData(
+        poolData          -> data stored in the pool
+        currentCentroids  -> centroids from current iteration
+        intermedCentroids -> matrix with centroids and their labels 
+    )
+
+Given the updated centroid values and the pool data, the function calculates the new labeled data using nearest neighbor over the vcat of current centroids and the intermed centroids and the pool data. 
+The result is going to have the labels got with new centroid values, from the updated classifier.
+"""
+function calculateNewLabeledData(poolData::Array{T, 2} where {T<:Number}, currentCentroids::Array{T, 2} where {T<:Number}, intermedCentroids::Array{T, 2} where {T<:Number})
+    poolDataSize = size(poolData)
+    currentCentroidsSize = size(currentCentroids)
+    intermedSize = size(intermedCentroids)
+
+    newLabeledData = zeros(poolDataSize[1])
+
+    for row = 1:poolDataSize[1]
+        output, _ = knnClassification(vcat(currentCentroids[:, 1:currentCentroidsSize[2] - 1], intermedCentroids[:, 1:intermedSize[2] - 1]), 
+        vcat(currentCentroids[:, currentCentroidsSize[2]], intermedCentroids[:, intermedSize[2]]), 
+        poolData[row, 1:poolDataSize[2] - 1])
+
+        global newLabeledData[row] = output
+    end
+
+    return newLabeledData
+end
+
 end
