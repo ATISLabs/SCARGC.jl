@@ -4,6 +4,99 @@ using Distances, Statistics
 using Clustering
 
 """
+scargc_1NN(
+    dataset         -> dataset used in the algorighm
+    percentTraining -> amount of data that is goung to be used as training data
+    maxPoolSize     -> maximum instances that the pool size can store
+    K               -> nuber of clusters
+)
+
+SCARGC implementation with the Nearest Neighbor classifier for label predicting.
+The function prints the final accuracy and returns the vector with all predicted labels.
+
+The most important function lines are:
+    - Separing the dataset into different arrays/elements (line 38)
+    - Resizing the data if the feature count is smaller than the K. (line 39)
+    - Finding the initial centroids. (line 40)
+    - Vector of predicted labels (line 42)
+    - Vector to calculate the accuracy at the end of the function. (line 44)
+    - The size of the poolData matrix is `maxPoolSize` rows by features on test instance + 1 (the predicted label). (line 45)
+
+    INSIDE THE FOR IF
+        - Temporary centroids from current iteration. (line 59)
+        - Variables to store the size of the matrixes. (lines 61 and 62)
+        - Finding the intermed matrix, with the centroids and labels from current iteration using values from the previous. (line 64)
+          one and the labels of those centroids.
+        - Centroids from the current iteration. (lines 67, 68 and 69)
+        - Size of current centroids' matrix. (line 71)
+        - Getting new labeled data with updated centroid values. (line 73)
+        - Getting the amount of new labeled data that is the same as the labeled data stored on pool size. (line 75)
+        - Updating values (line 77)
+        - Reseting poolData (lines 81, 82)
+"""
+function scargc_1NN(dataset::Array{T, 2} where {T<:Number}, percentTraining::Float64, maxPoolSize::Int64, K::Int64)
+    labels, labeledData, labeledDataLabels, streamData, streamLabels, features = fitData(dataset, percentTraining)
+    labeledData, streamData, features = resizeData(labeledData, streamData, K, features)
+    centroids = findCentroids(labels, features, labeledData, labeledDataLabels, K)
+
+    predictedLabels = zeros(size(streamLabels, 1))
+
+    accuracyVector = zeros(size(streamData, 1))
+    poolData = zeros(maxPoolSize, size(streamData, 2) + 1)
+    poolDataIndex = 1
+
+    for stream = 1:size(streamData, 1)
+        testInstance = streamData[stream, :]
+        currentLabel = streamLabels[stream]
+
+        predictedLabel, _ = knnClassification(labeledData, labeledDataLabels, testInstance)
+
+        poolData[poolDataIndex, 1:size(streamData, 2)] = testInstance
+        poolData[poolDataIndex, size(streamData, 2) + 1] = predictedLabel
+        poolDataIndex += 1
+
+        if (poolDataIndex > maxPoolSize)
+            tempCurrentCentroids = kmeans(poolData[:, 1:size(poolData, 2) - 1], K).centers
+
+            sizeTempCurrentCentroids = size(tempCurrentCentroids)
+            sizePoolData = size(poolData)
+
+            intermed, centroidLabels = findLabelForCurrentCentroids(centroids, tempCurrentCentroids, K)
+            sizeIntermed = size(intermed)
+
+            currentCentroids = zeros(sizeTempCurrentCentroids[1], sizeTempCurrentCentroids[2] + 1)
+            currentCentroids[:, 1:sizeTempCurrentCentroids[2]] = tempCurrentCentroids
+            currentCentroids[:, size(currentCentroids, 2)] = centroidLabels
+
+            sizeCurrentCentroids = size(currentCentroids)
+
+            newLabeledData = calculateNewLabeledData(poolData, currentCentroids, intermed)
+            
+            concordantLabelCount = count(label -> label == 1, poolData[:, 1:sizePoolData[2] - 1] .== newLabeledData)
+
+            centroids, labeledData, labeledDataLabels = updateInformation(poolData, centroids, labeledData, labeledDataLabels,
+                                                                        newLabeledData, currentCentroids, intermed, 
+                                                                        concordantLabelCount, maxPoolSize)
+
+            poolData = zeros(maxPoolSize, size(streamData, 2) + 1)
+            poolDataIndex = 1
+        end
+        
+        predictedLabels[stream] = predictedLabel
+
+        if predictedLabel == currentLabel
+            global accuracyVector[stream] = 1
+        end
+    end
+
+    finalAccuracy = (sum(accuracyVector)/size(streamData)[1]) * 100
+
+    println(finalAccuracy)
+
+    return predictedLabels
+end
+
+"""
     fitData(
         dataset         -> the whole dataset loaded from file system
         percentTraining -> percentage of the amount of rows to be used as labeled data
