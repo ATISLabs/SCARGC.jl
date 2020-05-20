@@ -14,25 +14,24 @@ scargc_1NN(
 SCARGC implementation with the Nearest Neighbor classifier for label predicting.
 The function prints the final accuracy and returns the vector with all predicted labels.
 
-The most important function lines are:
-    - Separing the dataset into different arrays/elements (line 38)
-    - Resizing the data if the feature count is smaller than the K. (line 39)
-    - Finding the initial centroids. (line 40)
-    - Vector of predicted labels (line 42)
-    - Vector to calculate the accuracy at the end of the function. (line 44)
-    - The size of the poolData matrix is `maxPoolSize` rows by features on test instance + 1 (the predicted label). (line 45)
+The most important function steps are:
+    - Separing the dataset into different arrays/elements;
+    - Finding the initial centroids;
+    - Vector of predicted labels;
+    - Vector to calculate the accuracy at the end of the function;
+    - The size of the poolData matrix is `maxPoolSize` rows by features on test instance + 1 (the predicted label).
 
     INSIDE THE FOR IF
-        - Temporary centroids from current iteration. (line 59)
-        - Variables to store the size of the matrixes. (lines 61 and 62)
-        - Finding the intermed matrix, with the centroids and labels from current iteration using values from the previous. (line 64)
-          one and the labels of those centroids.
-        - Centroids from the current iteration. (lines 67, 68 and 69)
-        - Size of current centroids' matrix. (line 71)
-        - Getting new labeled data with updated centroid values. (line 73)
-        - Getting the amount of new labeled data that is the same as the labeled data stored on pool size. (line 75)
-        - Updating values (line 77)
-        - Reseting poolData (lines 81, 82)
+        - Temporary centroids from current iteration;
+        - Variables to store the size of the matrixes;
+        - Finding the intermed matrix, with the centroids and labels from current iteration using values from the previous;
+          one and the labels of those centroids;
+        - Centroids from the current iteration;
+        - Size of current centroids' matrix;
+        - Getting new labeled data with updated centroid values;
+        - Getting the amount of new labeled data that is the same as the labeled data stored on pool size;
+        - Updating values;
+        - Reseting poolData.
 """
 function scargc_1NN(dataset::Array{T, 2} where {T<:Number}, percentTraining::Float64, maxPoolSize::Int64, K::Int64)
     labels, labeledData, labeledDataLabels, streamData, streamLabels, features = fitData(dataset, percentTraining)
@@ -50,28 +49,27 @@ function scargc_1NN(dataset::Array{T, 2} where {T<:Number}, percentTraining::Flo
 
         predictedLabel, _ = knnClassification(labeledData, labeledDataLabels, testInstance)
 
-        poolData[poolDataIndex, 1:size(streamData, 2)] = testInstance
-        poolData[poolDataIndex, size(streamData, 2) + 1] = predictedLabel
+        poolData[poolDataIndex, 1:end-1] = testInstance
+        poolData[poolDataIndex, end] = predictedLabel
         poolDataIndex += 1
 
         if (poolDataIndex > maxPoolSize)
-            tempCurrentCentroids = kmeans(poolData[:, 1:size(poolData, 2) - 1], K).centers
-
-            sizeTempCurrentCentroids = size(tempCurrentCentroids)
-            sizePoolData = size(poolData)
+            tempCurrentCentroids = kmeans(permutedims(poolData[:, 1:end-1]), K).centers
+            tempCurrentCentroids = permutedims(tempCurrentCentroids)
 
             intermed, centroidLabels = findLabelForCurrentCentroids(centroids, tempCurrentCentroids, K)
-            sizeIntermed = size(intermed)
 
-            currentCentroids = zeros(sizeTempCurrentCentroids[1], sizeTempCurrentCentroids[2] + 1)
-            currentCentroids[:, 1:sizeTempCurrentCentroids[2]] = tempCurrentCentroids
-            currentCentroids[:, size(currentCentroids, 2)] = centroidLabels
+            currentCentroids = zeros(size(tempCurrentCentroids, 1), size(tempCurrentCentroids, 2) + 1)
+            currentCentroids[:, 1:end-1] = tempCurrentCentroids
+            currentCentroids[:, end] = centroidLabels
 
             sizeCurrentCentroids = size(currentCentroids)
 
-            newLabeledData = calculateNewLabeledData(poolData, currentCentroids, intermed)
+            centroids = intermed
+
+            newLabeledData = calculateNewLabeledData(poolData, currentCentroids, centroids)
             
-            concordantLabelCount = count(label -> label == 1, poolData[:, 1:sizePoolData[2] - 1] .== newLabeledData)
+            concordantLabelCount = count(label -> label == 1, poolData[:, end] .== newLabeledData)
 
             centroids, labeledData, labeledDataLabels = updateInformation(poolData, centroids, labeledData, labeledDataLabels,
                                                                         newLabeledData, currentCentroids, intermed, 
@@ -88,7 +86,7 @@ function scargc_1NN(dataset::Array{T, 2} where {T<:Number}, percentTraining::Flo
         end
     end
 
-    finalAccuracy = (sum(accuracyVector)/size(streamData)[1]) * 100
+    finalAccuracy = (sum(accuracyVector)/size(streamData, 1)) * 100
 
     println(finalAccuracy)
 
@@ -119,11 +117,11 @@ function fitData(dataset::Array{T, 2} where {T<:Number}, percentTraining::Float6
 
     labeledRowCount = Int(ceil((percentTraining/100) * rows))
 
-    labeledData = dataset[1:labeledRowCount, 1:columns - 1]
-    labeledDataLabels = dataset[1:labeledRowCount, columns]
+    labeledData = dataset[1:labeledRowCount, 1:end-1]
+    labeledDataLabels = dataset[1:labeledRowCount, end]
 
-    streamData = dataset[labeledRowCount + 1:rows, 1:columns - 1]
-    streamLabels = dataset[labeledRowCount + 1:rows, columns]
+    streamData = dataset[labeledRowCount + 1:rows, 1:end-1]
+    streamLabels = dataset[labeledRowCount + 1:rows, end]
 
     features = columns - 1
 
@@ -150,9 +148,7 @@ function knnClassification(labeledData::Array{T, 2} where {T<:Number}, labels::A
     resultData = nothing
     smallerDistance = Inf
 
-    datasetRows = Int(size(labeledData, 1))
-
-    for row = 1:datasetRows
+    for row = 1:size(labeledData, 1)
         data = labeledData[row, :]
 
         distance = Distances.euclidean(testInstance, data)
@@ -249,21 +245,18 @@ The function returns two arrays:
     centroidLabels -> labels got for the current centroids
 """
 function findLabelForCurrentCentroids(pastCentroids::Array{T, 2} where {T<:Number}, currentCentroids::Array{T, 2} where {T<:Number}, K::Int64)
-    pastCentroidsSize = size(pastCentroids)
-    currentCentroidsSize = size(currentCentroids)
+    intermed = zeros(size(currentCentroids, 1), size(pastCentroids, 2))
+    centroidLabels = zeros(size(currentCentroids, 1))
 
-    intermed = zeros(currentCentroidsSize[1], K + 1)
-    centroidLabels = zeros(currentCentroidsSize[1])
+    for row = 1:size(currentCentroids, 1)
+        label, nearestData = knnClassification(pastCentroids[:, 1:end-1], pastCentroids[:, end], currentCentroids[row, :])
 
-    for row = 1:currentCentroidsSize[1]
-        label, nearestData = knnClassification(pastCentroids[:, 1:pastCentroidsSize[2] - 1], pastCentroids[:, pastCentroidsSize[2]], currentCentroids[row, :])
-        
-        medianMatrix = zeros(2, currentCentroidsSize[2])
+        medianMatrix = zeros(2, size(currentCentroids, 2))
         medianMatrix[1, :] = nearestData
         medianMatrix[2, :] = currentCentroids[row, :]
 
-        global intermed[row, 1:K] = median(medianMatrix, dims=1)
-        global intermed[row, K + 1] = label
+        global intermed[row, 1:end-1] = median(medianMatrix, dims=1)
+        global intermed[row, end] = label
 
         global centroidLabels[row] = label
     end
@@ -282,17 +275,14 @@ Given the updated centroid values and the pool data, the function calculates the
 vcat of current centroids and the intermed centroids and the pool data. 
 The result is going to have the labels got with new centroid values, from the updated classifier.
 """
-function calculateNewLabeledData(poolData::Array{T, 2} where {T<:Number}, currentCentroids::Array{T, 2} where {T<:Number}, intermedCentroids::Array{T, 2} where {T<:Number})
-    poolDataSize = size(poolData)
-    currentCentroidsSize = size(currentCentroids)
-    intermedSize = size(intermedCentroids)
+function calculateNewLabeledData(poolData::Array{T, 2} where {T<:Number}, currentCentroids::Array{T, 2} where {T<:Number}, pastCentroids::Array{T, 2} where {T<:Number})
+    newLabeledData = zeros(size(poolData, 1))
 
-    newLabeledData = zeros(poolDataSize[1])
+    lblData = vcat(currentCentroids[:, 1:end-1], pastCentroids[:, 1:end-1])
+    lblLabels = vcat(currentCentroids[:, end], pastCentroids[:, end])
 
-    for row = 1:poolDataSize[1]
-        output, _ = knnClassification(vcat(currentCentroids[:, 1:currentCentroidsSize[2] - 1], intermedCentroids[:, 1:intermedSize[2] - 1]), 
-        vcat(currentCentroids[:, currentCentroidsSize[2]], intermedCentroids[:, intermedSize[2]]), 
-        poolData[row, 1:poolDataSize[2] - 1])
+    for row = 1:size(poolData, 1)
+        output, _ = knnClassification(lblData, lblLabels, poolData[row, 1:end-1])
 
         global newLabeledData[row] = output
     end
@@ -326,17 +316,15 @@ function updateInformation(poolData::Array{T, 2} where {T<:Number}, centroids::A
 
     # If there's still some difference (concordantLabelCount/maxPoolSize < 1) or if the amount of labeled data labels is smaller than the pool data 
     # means that the classifier elements (as centroids, data and labels) need to be updated.
-    if concordantLabelCount/maxPoolSize < 1 || size(labeledDataLabels, 1) < sizePoolData[1]
-        poolData[:, sizePoolData[2]] = newLabeledData
-        
+    if concordantLabelCount/maxPoolSize < 1 || size(labeledDataLabels, 1) < size(poolData, 1)
         centroids = nothing
         centroids = vcat(currentCentroids, intermed)
 
         labeledData = nothing
-        labeledData = poolData[:, 1:sizePoolData[2] - 1]
+        labeledData = poolData[:, 1:end-1]
 
         labeledDataLabels = nothing
-        labeledDataLabels = poolData[:, sizePoolData[2]]
+        labeledDataLabels = newLabeledData
     end
 
     return centroids, labeledData, labeledDataLabels
