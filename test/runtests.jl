@@ -59,36 +59,6 @@ using SCARGC, Test, Clustering
     end
 end
 
-@testset "Data resizing" begin
-    @testset "features >= K" begin
-        dataset = rand(10^3, 5)
-        labels, labeledData, labeledDataLabels, streamData, streamLabels, features = SCARGC.fitData(dataset, 5.0)
-        labeledData, streamData, features = SCARGC.resizeData(labeledData, streamData, 4, features)
-
-        @test size(labeledData, 2) == 4
-        @test size(streamData, 2) == 4
-        @test features == 4
-    end
-
-    @testset "features < K" begin
-        dataset = rand(10^3, 3)
-        labels, labeledData, labeledDataLabels, streamData, streamLabels, features = SCARGC.fitData(dataset, 5.0)
-        labeledData, streamData, features = SCARGC.resizeData(labeledData, streamData, 4, features)
-
-        @testset "Arrays size" begin
-            @test size(labeledData, 2) == 4
-            @test size(streamData, 2) == 4
-            @test features == 4
-        end
-
-        @testset "Updated values" begin
-            @test labeledData[:, 3:4] == ones(size(labeledData, 1), 2)
-            @test streamData[:, 3:4] == ones(size(streamData, 1), 2)
-            @test features == 4
-        end
-    end
-end
-
 @testset "KNN Classification" begin
     dataset = [
         2.8958 -7.4953 2; 8.2872 -0.68142 4; 6.3705 -1.0572 4; -10.777 1.6717 3; -3.9285 9.8147 1;
@@ -142,43 +112,27 @@ end
     @testset "K == C" begin
         labels, trainingData, trainingLabels, streamData, streamLabels, features = SCARGC.fitData(dataset, 100.0)
         
-        trainingData, streamData, features = SCARGC.resizeData(trainingData, streamData, 4, features)
         centroids = SCARGC.findCentroids(labels, features, trainingData, trainingLabels, 4)
 
         @testset "Array size" begin
-            @test size(centroids) == (4, 5)
+            @test size(centroids) == (4, 3)
         end
 
         @testset "Array content" begin
-            @test centroids[1, :] == [-1.0525, -9.2088, 1.0, 1.0, 2.0]
-            @test centroids[2, :] == [10.0244, -0.303346, 1.0, 1.0, 4.0]
-            @test centroids[3, :] == [-9.5809, -0.46916, 1.0, 1.0, 3.0]
-            @test centroids[4, :] == [-0.0534785, 9.92035, 1.0, 1.0, 1.0]
+            @test centroids[1, :] == [-1.0525, -9.2088, 2.0]
+            @test centroids[2, :] == [10.0244, -0.303346, 4.0]
+            @test centroids[3, :] == [-9.5809, -0.46916, 3.0]
+            @test centroids[4, :] == [-0.0534785, 9.92035, 1.0]
         end
     end
 
     @testset "K != C" begin
         labels, trainingData, trainingLabels, streamData, streamLabels, features = SCARGC.fitData(dataset, 100.0)
-            
-        trainingData, streamData, features = SCARGC.resizeData(trainingData, streamData, 2, features)
-        centroids = SCARGC.findCentroids(labels, features, trainingData, trainingLabels, 2)
         
-        testCentroids = kmeans(trainingData, 2).centers
-        testOutputs = zeros(50)
-
-        for testRow = 1:50
-            testOutputs[testRow], _ = SCARGC.knnClassification(trainingData, trainingLabels, testCentroids[testRow, :])
-        end
+        centroids = SCARGC.findCentroids(labels, features, trainingData, trainingLabels, 2)
 
         @testset "Array size" begin
-            @test size(centroids) == (50, 3)
-        end
-
-        @testset "Array content" begin
-            for row = 1:50
-                @test centroids[row, 1:2] == testCentroids[row, :]
-                @test centroids[row, 3] == testOutputs[row]
-            end
+            @test size(centroids) == (2, 3)
         end
     end
 end

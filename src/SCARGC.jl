@@ -36,7 +36,6 @@ The most important function lines are:
 """
 function scargc_1NN(dataset::Array{T, 2} where {T<:Number}, percentTraining::Float64, maxPoolSize::Int64, K::Int64)
     labels, labeledData, labeledDataLabels, streamData, streamLabels, features = fitData(dataset, percentTraining)
-    labeledData, streamData, features = resizeData(labeledData, streamData, K, features)
     centroids = findCentroids(labels, features, labeledData, labeledDataLabels, K)
 
     predictedLabels = zeros(size(streamLabels, 1))
@@ -134,34 +133,6 @@ function fitData(dataset::Array{T, 2} where {T<:Number}, percentTraining::Float6
 end
 
 """
-    updateData(
-        labeledData -> the labeled data matrix that is going to be resized
-        streamData  -> testing data matrix that is going to be resized
-        K           -> defined number of clusters
-        features    -> total of features, that also is going to be redefined
-    )
-
-The function resizes the labeled and stream data with 1s if the feature count is smaller than the value of K. If it's not, the 
-function just returns the original values.
-After resizing, the function returns the new labeled data, the new stream data and the updated feature count.
-"""
-function resizeData(labeledData::Array{T, 2} where {T<:Number}, streamData::Array{T, 2} where {T<:Number}, K::Int64, features::Int64)
-    if (features < K)
-        newLabeledData = ones(size(labeledData, 1), K)
-        newStreamData = ones(size(streamData, 1), K)
-
-        newLabeledData[:, 1:size(labeledData,2)] = labeledData
-        newStreamData[:, 1:size(streamData, 2)] = streamData
-
-        newFeatureCount = K
-
-        return newLabeledData, newStreamData, newFeatureCount
-    else
-        return labeledData, streamData, features
-    end
-end
-
-"""
     knnClassification(
         labeledData  -> labeled data used to apply the euclidean distance
         labels       -> all data labels
@@ -242,7 +213,8 @@ function findCentroids(labels::Array{T} where {T<:Number}, features::Int64, labe
         global centroids[:, features + 1] = classes
     else
         println("(K != C)")
-        tempCentroids = kmeans(labeledData, K).centers
+        tempCentroids = kmeans(permutedims(labeledData), K).centers
+        tempCentroids = permutedims(tempCentroids)
 
         centroidLabels = zeros(size(tempCentroids, 1))
 
@@ -252,8 +224,8 @@ function findCentroids(labels::Array{T} where {T<:Number}, features::Int64, labe
         end
 
         global centroids = zeros(size(tempCentroids, 1), size(tempCentroids, 2) + 1)
-        global centroids[:, 1:size(tempCentroids, 2)] = tempCentroids
-        global centroids[:, size(centroids, 2)] = centroidLabels
+        global centroids[:, 1:end-1] = tempCentroids
+        global centroids[:, end] = centroidLabels
     end
 
     return centroids
