@@ -5,14 +5,6 @@ os:
   - linux
   - osx
 
-install:
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get update && sudo apt-get install python-pip; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt install python-sklearn; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; sudo easy_install pip; fi
-  - pip install numpy --user
-  - pip install -U scikit-learn --user
-  - pip install sklearn --user
-
 julia:
   - 1.0
   - 1.4
@@ -31,4 +23,10 @@ jobs:
   fast_finish: true
 
 script:
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get update && sudo apt-get install python-pip; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt install python-sklearn; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; sudo easy_install pip; fi
+  - pip install numpy --user
+  - pip install -U scikit-learn --user
+  - pip install sklearn --user
   - julia -e 'using Pkg; Pkg.activate("."); Pkg.build(); Pkg.test(coverage=true)'
