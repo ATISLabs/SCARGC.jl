@@ -9,11 +9,6 @@ julia:
   - 1.0
   - 1.4
   - nightly
-  
-install:
-  - pip install numpy --user
-  - pip install -U scikit-learn scipy --user
-  - pip install sklearn --user
 
 notifications:
   email: false
@@ -28,7 +23,10 @@ jobs:
   fast_finish: true
 
 script:
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get update && sudo apt-get install python-pip; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get update && sudo apt-get install python3.6 && sudo apt install python3-pip; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install python-sklearn; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; sudo easy_install pip; fi
+  - pip3 install numpy --user
+  - pip3 install -U scikit-learn scipy --user
+  - pip3 install sklearn --user
   - julia -e 'using Pkg; Pkg.activate("."); Pkg.build(); Pkg.test(coverage=true)'
