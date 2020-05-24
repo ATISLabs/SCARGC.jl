@@ -1,26 +1,34 @@
 # Documentation: http://docs.travis-ci.com/user/languages/julia/
 language: julia
+
 os:
   - linux
   - osx
-julia:
-  - 1.0
-  - 1.4
-  - nightly
-notifications:
-  email: false
-after_success:
-  - julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
-  - julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Coveralls.submit(process_folder())'
-jobs:
-  allow_failures:
-    - julia: nightly
-  fast_finish: true
-script:
+
+install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get update && sudo apt-get install python-pip; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt install python-sklearn; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; sudo easy_install pip; fi
   - pip install numpy --user
   - pip install -U scikit-learn --user
   - pip install sklearn --user
+
+julia:
+  - 1.0
+  - 1.4
+  - nightly
+
+notifications:
+  email: false
+
+after_success:
+  - julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
+  - julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Coveralls.submit(process_folder())'
+
+jobs:
+  allow_failures:
+    - julia: nightly
+  fast_finish: true
+
+script:
   - julia -e 'using Pkg; Pkg.activate("."); Pkg.build(); Pkg.test(coverage=true)'
