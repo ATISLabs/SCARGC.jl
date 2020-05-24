@@ -12,7 +12,13 @@ julia:
 
 notifications:
   email: false
-
+  
+before_install:
+ - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get -qq update              ; fi
+ - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install -y python-pip   ; fi
+ - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then pip install --user numpy             ; fi
+ - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then pip install --user scikit-learn      ; fi
+ 
 after_success:
   - julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
   - julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Coveralls.submit(process_folder())'
@@ -23,10 +29,4 @@ jobs:
   fast_finish: true
 
 script:
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get update && sudo apt-get install python3.6 && sudo apt install python3-pip; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install python-sklearn; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; sudo easy_install pip; fi
-  - pip3 install numpy --user
-  - pip3 install -U scikit-learn scipy --user
-  - pip3 install sklearn --user
   - julia -e 'using Pkg; Pkg.activate("."); Pkg.build(); Pkg.test(coverage=true)'
