@@ -5,6 +5,7 @@ os:
   - osx
 julia:
   - 1.0
+  - 1.4
   - nightly
 notifications:
   email: false
@@ -16,4 +17,7 @@ jobs:
     - julia: nightly
   fast_finish: true
 script:
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt install python-pip 
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; sudo easy_install pip
+  - pip install -U scikit-learn
   - julia -e 'using Pkg; Pkg.activate("."); Pkg.build(); Pkg.test(coverage=true)'
