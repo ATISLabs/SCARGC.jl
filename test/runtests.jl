@@ -1,13 +1,12 @@
-using SCARGC, Test, Clustering
+using SCARGC, Test, PyCall
 
 @testset "Dataset fit" begin
     dataset = rand(10^3, 5)
 
-    labels, labeledData, labeledDataLabels, streamData, streamLabels, features = SCARGC.fitData(dataset, 5.0)
+    labeledData, labeledDataLabels, streamData, streamLabels, features = SCARGC.fitData(dataset, 5.0)
 
     @testset "Arrays size" begin
         @testset "Row count" begin
-            @test size(labels)[1] == 10^3
             @test size(labeledData)[1] == 50
             @test size(labeledDataLabels)[1] == size(labeledData)[1]
             @test size(streamData)[1] == 950
@@ -15,7 +14,6 @@ using SCARGC, Test, Clustering
         end
 
         @testset "Column count" begin
-            @test_throws BoundsError size(labels)[2]
             @test size(labeledData)[2] == 4
             @test_throws BoundsError size(labeledDataLabels)[2]
             @test size(streamData)[2] == 4
@@ -24,14 +22,6 @@ using SCARGC, Test, Clustering
     end
 
     @testset "Array content" begin
-        @testset "Labels" begin
-            for cases = 1:100
-                row = rand(1:1000)
-
-                @test labels[row] == dataset[row, 5]
-            end
-        end
-
         @testset "Training data" begin
             for cases = 1:100
                 row = rand(1:50)
@@ -75,7 +65,7 @@ end
 
     nearestNeighbors = [5, 6, 9, 5, 9, 9, 2, 6, 2, 2, 10, 7, 5, 2, 7, 4, 5, 9, 5, 5, 4, 5, 2, 5, 7, 2, 2, 2, 6, 9, 1, 2, 2, 6, 2, 8, 6, 2, 9, 5]
 
-    _, labeledData, labeledDataLabels, streamData, _, _ = SCARGC.fitData(dataset, 20.0)
+    labeledData, labeledDataLabels, streamData, _, _ = SCARGC.fitData(dataset, 20.0)
 
     @testset "Output concordance" begin
         for row = 1:40
@@ -110,9 +100,9 @@ end
     ]
 
     @testset "K == C" begin
-        labels, trainingData, trainingLabels, streamData, streamLabels, features = SCARGC.fitData(dataset, 100.0)
+        trainingData, trainingLabels, streamData, streamLabels, features = SCARGC.fitData(dataset, 100.0)
         
-        centroids = SCARGC.findCentroids(labels, features, trainingData, trainingLabels, 4)
+        centroids = SCARGC.findCentroids(features, trainingData, trainingLabels, 4)
 
         @testset "Array size" begin
             @test size(centroids) == (4, 3)
@@ -127,9 +117,22 @@ end
     end
 
     @testset "K != C" begin
-        labels, trainingData, trainingLabels, streamData, streamLabels, features = SCARGC.fitData(dataset, 100.0)
+        py"""
+            from sklearn.cluster import KMeans
+            import numpy as np
+            import sys, os
+
+            def kmeans(X, k, init, centroids=[]):
+                if (init == 0):
+                    return KMeans(n_clusters=k).fit(X).cluster_centers_
+                else:
+                    centroids = np.array(centroids)
+                    sys.stdout = open(os.devnull, 'w')
+                    return KMeans(n_clusters=k, init=centroids).fit(X).cluster_centers_"""
+
+        trainingData, trainingLabels, streamData, streamLabels, features = SCARGC.fitData(dataset, 100.0)
         
-        centroids = SCARGC.findCentroids(labels, features, trainingData, trainingLabels, 2)
+        centroids = SCARGC.findCentroids(features, trainingData, trainingLabels, 2)
 
         @testset "Array size" begin
             @test size(centroids) == (2, 3)
@@ -148,7 +151,7 @@ end
 
     labels = [1.0, 3.0, 2.0, 1.0, 2.0, 2.0, 4.0, 3.0, 4.0, 4.0, 2.0, 3.0, 1.0, 4.0, 3.0, 3.0, 1.0, 2.0, 1.0, 1.0]
 
-    _, centroidLabels = SCARGC.findLabelForCurrentCentroids(pastCentroids, currentCentroids, 4)
+    _, centroidLabels = SCARGC.findLabelForCurrentCentroids(pastCentroids, currentCentroids)
 
     for row = 1:20
         @test centroidLabels[row] == labels[row]
