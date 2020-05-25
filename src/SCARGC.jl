@@ -12,7 +12,7 @@ using PyCall
     )
 
 SCARGC implementation with the Nearest Neighbor classifier for label predicting.
-The function prints the final accuracy and returns the vector with all predicted labels.
+The function prints the final accuracy and returns the vector with all predicted labels and the final accuracy.
 
 The function starts getting the labeled and unlabeled and, with them, it creates the initial centroids.
 Then, a loop starts over the unlabeled data, storing the instance and the predicted label (predicted with the
@@ -95,7 +95,7 @@ function scargc_1NN(dataset::Array{T, 2} where {T<:Number}, percentTraining::Flo
 
     println(finalAccuracy)
 
-    return predictedLabels
+    return predictedLabels, finalAccuracy
 end
 
 """
@@ -109,8 +109,8 @@ These arrays are gonna be used in the whole program, so the fitting part is cons
 something's wrong in the this step, the whole application is gonna fail.
 
 The return of this function has the following variables:
-    - labeledData       -> `percentTraining` of the dataset features
-    - labeledDataLabels -> also `percentTraining` of the dataset labels
+    - labeledData       -> `percentTraining`% of the dataset features
+    - labeledDataLabels -> also `percentTraining`% of the dataset labels
     - streamData        -> remaining data of the dataset
     - streamLabels      -> remaining labels of the dataset
     - features          -> number of features present in the data
@@ -143,7 +143,7 @@ Applies the Nearest Neighbor to the `testInstance`.
 The function calculates, for each `labeledData`, the Euclidean Distance between it and the test instance and. 
 If it's value is smaller then the smallest distance, the smallest distance recieves this distance value and the label 
 value, at this index, is stored.
-The rurn of the function is the output and the data from the nearest neighbor.
+The return of the function is the output and the data from the nearest neighbor.
 """
 function knnClassification(labeledData::Array{T, 2} where {T<:Number}, labels::Array{T} where {T<:Number}, 
                            testInstance::Array{T} where {T<:Number})
@@ -219,9 +219,7 @@ function findCentroids(features::Int64, labeledData::Array{T, 2} where {T<:Numbe
                     return KMeans(n_clusters=k).fit(X).cluster_centers_
                 else:
                     centroids = np.array(centroids)
-                    sys.stdout = open(os.devnull, 'w')
                     return KMeans(n_clusters=k, init=centroids).fit(X).cluster_centers_"""
-
 
         tempCentroids = py"kmeans"(labeledData, K, 0)
 
