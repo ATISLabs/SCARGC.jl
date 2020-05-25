@@ -3,12 +3,11 @@ language: julia
 
 os:
   - linux
-  - osx
+  
+dist: bionic
 
 julia:
-  - 1.0
-  - 1.4
-  - nightly
+  - release
 
 notifications:
   email: false
