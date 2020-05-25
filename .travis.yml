@@ -14,10 +14,11 @@ notifications:
   email: false
   
 before_install:
- - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get -qq update              ; fi
- - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install -y python3-pip   ; fi
- - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then pip3 install --user numpy             ; fi
- - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then pip3 install --user scikit-learn      ; fi
+ - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get -qq update                 ; fi
+ - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install -y python3-pip     ; fi
+ - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install python3-setuptools ; fi
+ - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then pip3 install --user numpy               ; fi
+ - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then pip3 install --user scikit-learn        ; fi
  
 after_success:
   - julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
