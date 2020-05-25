@@ -1,5 +1,25 @@
 using SCARGC, Test, PyCall
 
+@testset "Dataset reading" begin
+    dataset = "../src/datasets/synthetic/1CDT.txt"
+
+    data = SCARGC.extractValuesFromFile(dataset, 16000, 3)
+
+    @testset "Array size" begin
+        @test size(data, 1) == 16000
+        @test size(data, 2) == 3
+    end
+
+    @testset "Array content" begin
+        @test data[1346, 2] == 7.287
+        @test data[1905, 2] == 8.7572
+        @test data[13560, 1] == 1.9553
+        @test data[14193, 1] == 9.2213
+        @test data[7309, 3] == 2
+        @test data[10050, 3] == 2
+    end
+end
+
 @testset "Dataset fit" begin
     dataset = rand(10^3, 5)
 
