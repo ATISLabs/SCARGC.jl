@@ -317,7 +317,7 @@ end
         1, 1, 2, 2, 1, 2, 2, 2, 1, 2, 3, 1, 1, 3, 1, 1, 3, 2, 1, 3, 1, 1, 4, 1, 4, 4, 4, 3, 3, 4
     ]
 
-    labelsGot = SCARGC.scargc_1NN(dataset, 10.0, 20, 4)
+    labelsGot, _ = SCARGC.scargc_1NN(dataset, 10.0, 20, 4)
 
     @test (count(label -> label == 1, labelsGot .== expectedLabels)/90) * 100 >= 90
 end
