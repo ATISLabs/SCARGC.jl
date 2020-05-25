@@ -99,6 +99,36 @@ function scargc_1NN(dataset::Array{T, 2} where {T<:Number}, percentTraining::Flo
 end
 
 """
+    extractValuesFromFile(
+        fileName -> name of the file that you're trying to read
+        rows     -> number of rows in the file
+        columns  -> number of columns in the file
+    )
+
+The function reads a file and creates a matrix with the file's values.
+Using the function `readuntil` and `parse` we can converte each value, separeted by comma.
+
+The function returns a matrix with the values in the file.
+"""
+function extractValuesFromFile(fileName::String, rows::Int64, columns::Int64)
+    file = open(fileName)
+
+    fileValues = zeros(rows, columns)
+
+    for row = 1:rows
+        for column = 1:columns-1
+            global fileValues[row, column] = parse(Float64, readuntil(file, ','))
+        end
+
+        global fileValues[row, columns] = parse(Float64, readuntil(file, '\n'))
+    end
+
+    close(file)
+
+    return fileValues
+end
+
+"""
     fitData(
         dataset         -> the whole dataset loaded from file system
         percentTraining -> percentage of the amount of rows to be used as labeled data
