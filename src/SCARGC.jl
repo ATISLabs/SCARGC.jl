@@ -1,7 +1,17 @@
+"""
+Main module for `SCARGC.jl`, the Julia implementation of SCARGC algorithm.
+
+From this module, two functions are exported for public use:
+
+- [`scargc_1NN`](@ref). The 1-Nearest Neighbor SCARGC implementation.
+- [`extractValuesFromFile`](@ref). A functio to extract the data values from a dataset file.
+"""
 module SCARGC
 
 using Distances, Statistics
 using PyCall
+
+export scargc_1NN, extractValuesFromFile
 
 """
     scargc_1NN(
@@ -27,6 +37,33 @@ found using both centroids from current and past iterations. These labels are go
 between them and the labels stored in the pool to know if the model is going to be updated.
 The last part, after calculating the concordance, is update the classification model if the concordance is different of 
 100%.
+
+For example, let's predict some data in the 1CHT dataset.
+
+We start loading the dataset and reading the values from it.
+
+```@example
+using SCARGC
+
+# loading dataset
+dataset = "datasets/synthetic/1CHT.txt"
+
+# extracting values from the dataset file and storing into `data`
+data = extractValuesFromFile(dataset, 16000, 3)
+
+# printing the read dataset
+prinln(data)
+
+# predicting labels and storing them in `predictedLabels` and the accuracy in `accuracy`
+predictedLabels, accuracy = scargc_1NN(data, 0.3125, 300, 2)
+
+# printing predicted labels
+println(predictedLabels)
+
+# printing the accuracy
+println(accuracy)
+```
+
 """
 function scargc_1NN(dataset::Array{T, 2} where {T<:Number}, percentTraining::Float64, maxPoolSize::Int64, K::Int64)
     labeledData, labeledDataLabels, streamData, streamLabels, features = fitData(dataset, percentTraining)
@@ -93,7 +130,7 @@ function scargc_1NN(dataset::Array{T, 2} where {T<:Number}, percentTraining::Flo
 
     finalAccuracy = (sum(accuracyVector)/size(streamData, 1)) * 100
 
-    println(finalAccuracy)
+    #println(finalAccuracy)
 
     return predictedLabels, finalAccuracy
 end
