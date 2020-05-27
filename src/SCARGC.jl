@@ -1,16 +1,17 @@
 """
 Main module for `SCARGC.jl`, the Julia implementation of SCARGC algorithm.
 
-From this module, three functions are exported for public use:
+From this module, two functions are exported for public use:
 
 - [`scargc_1NN`](@ref). The 1-Nearest Neighbor SCARGC implementation.
+- [`extractValuesFromFile`](@ref). A functio to extract the data values from a dataset file.
 """
 module SCARGC
 
 using Distances, Statistics
 using PyCall
 
-export scargc_1NN
+export scargc_1NN, extractValuesFromFile
 
 """
     scargc_1NN(
