@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Functions · SCARGC.jl</title><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link href="https://fonts.googleapis.com/css?family=Montserrat|Source+Code+Pro&amp;display=swap" rel="stylesheet" type="text/css"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../"><img src="../assets/logo.png" alt="SCARGC.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit">SCARGC.jl</span></div><form class="docs-search" action="../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li class="is-active"><a class="tocitem" href>Functions</a><ul class="internal"><li><a class="tocitem" href="#Predicting-functions-1"><span>Predicting functions</span></a></li><li><a class="tocitem" href="#Utilities-1"><span>Utilities</span></a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Functions</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Functions</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/MarinhoGabriel/SCARGC.jl/blob/master/docs/src/functions.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="SCARGC-1"><a class="docs-heading-anchor" href="#SCARGC-1">SCARGC</a><a class="docs-heading-anchor-permalink" href="#SCARGC-1" title="Permalink"></a></h1><p>Here are some functions in SCARGC module.</p><article class="docstring"><header><a class="docstring-binding" id="SCARGC" href="#SCARGC"><code>SCARGC</code></a> — <span class="docstring-category">Module</span></header><section><div><p>Main module for <code>SCARGC.jl</code>, the Julia implementation of SCARGC algorithm.</p><p>From this module, two functions are exported for public use:</p><ul><li><a href="#SCARGC.scargc_1NN"><code>scargc_1NN</code></a>. The 1-Nearest Neighbor SCARGC implementation.</li><li><a href="#SCARGC.extractValuesFromFile"><code>extractValuesFromFile</code></a>. A functio to extract the data values from a dataset file.</li></ul></div><a class="docs-sourcelink" target="_blank" href="https://github.com/MarinhoGabriel/SCARGC.jl/blob/d787197d99a18f906f527da4437694a7e2c3476a/src/SCARGC.jl#L1-L8">source</a></section></article><h2 id="Predicting-functions-1"><a class="docs-heading-anchor" href="#Predicting-functions-1">Predicting functions</a><a class="docs-heading-anchor-permalink" href="#Predicting-functions-1" title="Permalink"></a></h2><article class="docstring"><header><a class="docstring-binding" id="SCARGC.scargc_1NN" href="#SCARGC.scargc_1NN"><code>SCARGC.scargc_1NN</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia">scargc_1NN(
+    dataset         -&gt; &quot;dataset used in the algorighm&quot;
+    percentTraining -&gt; &quot;amount of data that is goung to be used as training data&quot;
+    maxPoolSize     -&gt; &quot;maximum instances that the pool size can store&quot;
+    K               -&gt; &quot;number of clusters&quot;
+)</code></pre><p>SCARGC implementation with the Nearest Neighbor classifier for label predicting. The function prints the final accuracy and returns the vector with all predicted labels and the final accuracy.</p><p>The function starts getting the labeled and unlabeled and, with them, it creates the initial centroids. Then, a loop starts over the unlabeled data, storing the instance and the predicted label (predicted with the classification model). </p><p>When the pool reaches the maximum, represented by <code>maxPoolSize</code>, a clustering step is made on the data stored in the pool to get the centroids from the current iteration (represented as <code>tempCurrentCentroids</code> before receiving the labels and <code>currentCentroids</code> after it). With the centroids from the past iteration (represented  as <code>centroids</code>), we find the current iteration&#39;s centroids&#39; labels and create the intermediary centroids, represented as <code>intermed</code>, that stores the median between the past and current centroids and the current iretation&#39;s centroid&#39;s labels (the reason to store that is to store the drift between the past and the current iteration).</p><p>After getting the labels, the past iteration&#39;s centroids receive the values stored in <code>intermed</code> and a new labels are found using both centroids from current and past iterations. These labels are going to be useful to get the concordance between them and the labels stored in the pool to know if the model is going to be updated. The last part, after calculating the concordance, is update the classification model if the concordance is different of  100%.</p><p>For example, let&#39;s predict some data in the <strong>1CHT</strong> dataset.</p><p>We start loading the dataset and reading the values from it.</p><pre><code class="language-">using SCARGC
+
+# loading dataset
+dataset = &quot;datasets/synthetic/1CHT.txt&quot;
+
+# extracting values from the dataset file and storing into `data`
+data = extractValuesFromFile(dataset, 16000, 3)
+
+# printing the read dataset
+prinln(data)
+
+# predicting labels and storing them in `predictedLabels` and the accuracy in `accuracy`
+predictedLabels, accuracy = scargc_1NN(data, 0.3125, 300, 2)</code></pre><p>If we print the results, we&#39;re gonna have</p><pre><code class="language-julia"># predicted labels
+11000-element Array{Int64,1}:
+ 1
+ 2
+ 1
+ 1
+ 1
+ 2
+ 1
+ 1
+ ⋮
+ 2
+ 1
+ 2
+ 1
+ 2
+ 2
+ 2
+
+# accuracy ~
+99.73040752351096</code></pre><p>The accuracy happens if you&#39;re using a dataset with the actual labels of all instances. Then the function can compare the prediction with the actual label to get the accuracy.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/MarinhoGabriel/SCARGC.jl/blob/d787197d99a18f906f527da4437694a7e2c3476a/src/SCARGC.jl#L16-L92">source</a></section></article><h2 id="Utilities-1"><a class="docs-heading-anchor" href="#Utilities-1">Utilities</a><a class="docs-heading-anchor-permalink" href="#Utilities-1" title="Permalink"></a></h2><article class="docstring"><header><a class="docstring-binding" id="SCARGC.extractValuesFromFile" href="#SCARGC.extractValuesFromFile"><code>SCARGC.extractValuesFromFile</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia">extractValuesFromFile(
+    fileName -&gt; &quot;name of the file that you&#39;re trying to read&quot;
+    rows     -&gt; &quot;number of rows in the file&quot;
+    columns  -&gt; &quot;number of columns in the file&quot;
+)</code></pre><p>The function reads a file and creates a matrix with the file&#39;s values. Using the function <code>readuntil</code> and <code>parse</code> we can converte each value, separeted by comma.</p><p>The function returns a matrix with the values in the file.</p><p>For example, let&#39;s suppose we have a text file, called &quot;example.txt&quot;, with <strong>10</strong> lines and <strong>7</strong> columns.</p><pre><code class="language-none">2.91120, 2.94941, 2.92468, 0.88324, 6.00512, 5.88021, 3
+4.97443, 2.31345, 5.21826, 8.13938, 7.47390, 8.24444, 1
+3.13772, 7.87192, 8.35722, 7.41002, 6.95894, 5.20002, 2
+3.74301, 6.39082, 3.89166, 8.76716, 1.66374, 6.75246, 3
+8.98766, 4.42780, 4.94278, 7.05217, 5.21106, 3.69790, 1
+4.38337, 4.91497, 6.16593, 8.73148, 6.17557, 0.90185, 2
+0.97263, 2.70122, 0.00343, 7.20105, 1.63296, 8.26112, 1
+0.50329, 3.54209, 8.47787, 2.59826, 3.93825, 2.58200, 3
+6.75223, 4.59601, 2.02472, 8.10523, 3.65602, 6.91874, 1
+8.98924, 2.33177, 8.34892, 4.03544, 8.57646, 7.93690, 1</code></pre><p>We&#39;re gonna run this function with the following values:</p><ul><li><code>fileName</code> is going to receive the path to the file. In this case, it&#39;s just &quot;example.txt&quot;;</li><li><code>rows</code> is going to receive 10 and</li><li><code>columns</code> is going to receive 7</li></ul><p>Then, the function starts and reads each value separated by &quot;,&quot; and stores these values into  a matrix. This matrix is returned in the end of the function, in the format:</p><pre><code class="language-julia">10×7 Array{Float64,2}:
+2.91120, 2.94941, 2.92468, 0.88324, 6.00512, 5.88021, 3
+4.97443, 2.31345, 5.21826, 8.13938, 7.47390, 8.24444, 1
+3.13772, 7.87192, 8.35722, 7.41002, 6.95894, 5.20002, 2
+3.74301, 6.39082, 3.89166, 8.76716, 1.66374, 6.75246, 3
+8.98766, 4.42780, 4.94278, 7.05217, 5.21106, 3.69790, 1
+4.38337, 4.91497, 6.16593, 8.73148, 6.17557, 0.90185, 2
+0.97263, 2.70122, 0.00343, 7.20105, 1.63296, 8.26112, 1
+0.50329, 3.54209, 8.47787, 2.59826, 3.93825, 2.58200, 3
+6.75223, 4.59601, 2.02472, 8.10523, 3.65602, 6.91874, 1
+8.98924, 2.33177, 8.34892, 4.03544, 8.57646, 7.93690, 1</code></pre><p>This matrix is then ready to be used along the code.</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/MarinhoGabriel/SCARGC.jl/blob/d787197d99a18f906f527da4437694a7e2c3476a/src/SCARGC.jl#L166-L218">source</a></section></article></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../">« Home</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Thursday 28 May 2020 12:37">Thursday 28 May 2020</span>. Using Julia version 1.4.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
