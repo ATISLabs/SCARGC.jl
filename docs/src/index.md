@@ -26,10 +26,6 @@ data, build a classifier model with this data and, after that, there's no labele
 data "arriving". We just predict and update the model to get a better result in
 the next iteration.
 
-!!! note
-    The package is still under development, so keep your version updated to get
-    the newests features and don't miss anything.
-
 ## Installation
 
 In the Julia's package manager, type:
@@ -77,7 +73,7 @@ In the picture below, the blue bars represent the original SCARGC and the
 black ones represent SCARGC.jl results on those datasets (represented in X asis).
 
 
-![Result](../../results/result.jpeg)
+![Result](https://github.com/MarinhoGabriel/SCARGC.jl/blob/master/results/result.jpeg?raw=true)
 
 ## References
 

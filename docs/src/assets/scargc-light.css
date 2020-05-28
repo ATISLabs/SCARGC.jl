@@ -1,0 +1,103 @@
+@import "documenter-light";
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@200;300&display=swap');
+
+html,
+body,
+p,
+ol,
+ul,
+li,
+dl,
+dt,
+dd,
+blockquote,
+figure,
+fieldset,
+legend,
+textarea,
+pre,
+iframe,
+hr,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: 'Nunito', sans-serif;
+}
+
+#documenter .docs-sidebar {
+    background-image:linear-gradient(135deg, rgba(34, 139, 87 , .4), rgba(139, 34, 139, .4));
+    background-color:#123;
+}
+
+#documenter .content p {
+    text-align: justify;
+}
+
+.docstring > header {
+    background-image: linear-gradient(135deg, rgba(0.5, 139, 87 , .4), rgba(0.5, 34, 139, .4));
+    background-color: white;
+}
+
+#documenter .docs-sidebar .docs-package-name {
+    color:whitesmoke;
+}
+
+#documenter .docs-sidebar ul.docs-menu {
+    border-top: none;
+}
+
+#documenter .docs-sidebar ul.docs-menu .tocitem, #documenter .docs-sidebar ul.docs-menu .tocitem:hover {
+    color: whitesmoke;
+    background: transparent;
+}
+
+#documenter .docs-sidebar ul.docs-menu a.tocitem:hover, #documenter .docs-sidebar ul.docs-menu label.tocitem:hover {
+    color: whitesmoke;
+    background-color: rgba(10, 10, 10, 0.5);
+}
+
+#documenter .docs-sidebar ul.docs-menu li.is-active {
+    background-color: rgba(10, 10, 10, 0.5);
+    border-top: none;
+    border-bottom: none;
+}
+
+#documenter .docs-sidebar ul.docs-menu li.is-active .tocitem, #documenter .docs-sidebar ul.docs-menu li.is-active .tocitem:hover {
+    background-color: transparent;
+    color: whitesmoke;
+}
+
+#documenter .docs-sidebar ul.docs-menu li.is-active ul.internal .tocitem:hover {
+    background-color: rgba(10, 10, 10, 0.5);
+    color: whitesmoke;
+}
+
+#documenter .docs-sidebar ul.docs-menu ul.internal {
+    padding: 0 10px 10px 10px;
+    margin: 0;
+    border-top: none;
+}
+
+#documenter .docs-sidebar ul.docs-menu ul.internal .tocitem::before {
+    content: "";
+}
+
+#documenter .docs-sidebar form.docs-search {
+    margin-bottom: 20px;
+}
+
+#documenter .docs-sidebar form.docs-search > input {
+    width: 14.4rem;
+}
+
+#documenter .docs-sidebar {
+    border-right: none;
+    box-shadow: 0.24rem 0rem 0.4rem #bbb;
+}
+
+h1 .docs-heading-anchor, h1 .docs-heading-anchor:hover, h1 .docs-heading-anchor:visited, h2 .docs-heading-anchor, h2 .docs-heading-anchor:hover, h2 .docs-heading-anchor:visited, h3 .docs-heading-anchor, h3 .docs-heading-anchor:hover, h3 .docs-heading-anchor:visited, h4 .docs-heading-anchor, h4 .docs-heading-anchor:hover, h4 .docs-heading-anchor:visited, h5 .docs-heading-anchor, h5 .docs-heading-anchor:hover, h5 .docs-heading-anchor:visited, h6 .docs-heading-anchor, h6 .docs-heading-anchor:hover, h6 .docs-heading-anchor:visited {
+    color: #333;
+}
