@@ -15,3 +15,8 @@ makedocs(
             "Functions" => "functions.md"
         ]
     )
+
+
+deploydocs(
+    repo = "github.com/MarinhoGabriel/SCARGC.jl.git",
+)
