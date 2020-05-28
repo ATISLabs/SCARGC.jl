@@ -3,6 +3,9 @@ using Pkg
 Pkg.activate(".")
 
 using Documenter, SCARGC
+using DocumenterTools: Themes
+
+Themes.compile(joinpath(@__DIR__,"src/assets/scargc-light.css"), joinpath(@__DIR__,"src/assets/themes/documenter-light.css"))
 
 makedocs(
         format = Documenter.HTML(
