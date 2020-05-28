@@ -4,7 +4,7 @@ A Julia implementation of **S**tream **C**lassification **A**lgo**r**ithm **G**u
 
 Documentation | Build
 ------------- | ----- 
-[![](https://img.shields.io/badge/docs-dev-blue.svg)](https://MarinhoGabriel.github.io/SCARGC.jl/dev) | [![Build Status](https://travis-ci.org/MarinhoGabriel/SCARGC.jl.svg?branch=master)](https://travis-ci.org/MarinhoGabriel/SCARGC.jl) [![Coverage Status](https://coveralls.io/repos/github/MarinhoGabriel/SCARGC.jl/badge.svg)](https://coveralls.io/github/MarinhoGabriel/SCARGC.jl) [![codecov](https://codecov.io/gh/MarinhoGabriel/SCARGC.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/MarinhoGabriel/SCARGC.jl)
+[![](https://img.shields.io/badge/docs-dev-blue.svg)](https://MarinhoGabriel.github.io/SCARGC.jl/dev) | [![Build Status](https://travis-ci.com/MarinhoGabriel/SCARGC.jl.svg?branch=master)](https://travis-ci.com/MarinhoGabriel/SCARGC.jl) [![Coverage Status](https://coveralls.io/repos/github/MarinhoGabriel/SCARGC.jl/badge.svg)](https://coveralls.io/github/MarinhoGabriel/SCARGC.jl) [![codecov](https://codecov.io/gh/MarinhoGabriel/SCARGC.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/MarinhoGabriel/SCARGC.jl)
 
 
 ## Installation
