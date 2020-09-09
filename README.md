@@ -4,7 +4,7 @@ A Julia implementation of **S**tream **C**lassification **A**lgo**r**ithm **G**u
 
 Documentation | Build
 ------------- | ----- 
-[![](https://img.shields.io/badge/docs-dev-blue.svg)](https://ATISLabs.github.io/SCARGC.jl/dev) | [![Build Status](https://travis-ci.com/ATISLabs/SCARGC.jl.svg?branch=master)](https://travis-ci.com/ATISLabs/SCARGC.jl) [![Coverage Status](https://coveralls.io/repos/github/ATISLabs/SCARGC.jl/badge.svg)](https://coveralls.io/github/ATISLabs/SCARGC.jl) [![codecov](https://codecov.io/gh/ATISLabs/SCARGC.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/ATISLabs/SCARGC.jl)
+[![](https://img.shields.io/badge/docs-dev-blue.svg)](https://ATISLabs.github.io/SCARGC.jl/dev) | [![Build Status](https://travis-ci.com/ATISLabs/SCARGC.jl.svg?branch=master)](https://travis-ci.com/ATISLabs/SCARGC.jl) [![Coverage Status](https://coveralls.io/repos/github/MarinhoGabriel/SCARGC.jl/badge.svg?branch=master)](https://coveralls.io/github/MarinhoGabriel/SCARGC.jl?branch=master) [![codecov](https://codecov.io/gh/ATISLabs/SCARGC.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/ATISLabs/SCARGC.jl)
 
 
 ## Installation
