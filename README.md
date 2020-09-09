@@ -25,7 +25,7 @@ or, if you prefer, you can use the Julia REPL
 ## Comparison
 
 Between the Julia implementation of SCARGC and the original one, implemented in MatLab, the results were pretty good.
-The following picture shows the comparison between SCARGC.jl (in black) and SCARGG.
+The following picture shows the comparison between SCARGC.jl (in black) and SCARGC.
 
 ![Result](results/result.jpeg)
 
